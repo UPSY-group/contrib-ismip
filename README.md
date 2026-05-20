@@ -12,9 +12,11 @@ ln -s ACTUAL_RESTART_DIR restart
 
 This way, whenever you have a nice new initialisation, you just need to update the `restart` link to the new folder (and perhaps modify the times in the config file), rather than copying files and renaming all of these config variables.
 
-### Expected forcing structure:
+### Expected file structure:
 ```
 contrib-ismip
+├── scripts/
+│   └── run_ufemism.sh
 ├── input/
 │   └── AIS/
 │       ├── CESM2-WACCM/
