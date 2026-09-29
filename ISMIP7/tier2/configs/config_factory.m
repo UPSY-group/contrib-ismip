@@ -2,42 +2,57 @@ clc
 clear all
 close all
 
-experiments = {
+delete_existing_config_files()
+
+filename_PPE_table = 'IMAUKNMI_UFEMISM_PPE_table.txt';
+
+core_experiments = {
   'C001'
+  'C002'
   'C007'
+  'C008'
   };
-model_variations = {
-  'm001',...
-  'm002',...
-  'm003',...
-  'm004',...
-  'm005',...
-  'm006',...
-  'm007',...
-  'm008',...
-  'm009',...
-  'm010'};
-forcing_variations = {
-  'f001'
-  'f002'
+model_versions = {
+  'm001','Default';
+  'm002','GIA: no uplift';
+  'm003','GIA: relaxation time = 3000 yr';
+  'm004','GIA: relaxation time = 200 yr';
+  'm005','LADDIE: top-drag-coeff = 0.0014';
+  'm006','LADDIE: top-drag-coeff = 0.0005';
+  'm007','Fracture: not applied';
+  'm008','Fracture: apply to all floating ice';
+  'm009','No thermodynamics (constant ice temperature)';
+  'm010','Calving: threshold thickness = 100 m';
+  'm011','Calving: threshold thickness = 200 m';
   };
+forcing_versions = {
+  'f001','Default';
+  'f002','dSMB/dz = 0';
+  };
+
+% Create text file listing all the PPE experiments
+if exist( filename_PPE_table,'file')
+  delete( filename_PPE_table)
+end
+fid = fopen( filename_PPE_table,'w');
+list_forcing_and_model_versions( fid, forcing_versions, model_versions);
 
 ppi = 0;
 
-for fi = 1: length( forcing_variations)
-  for xi = 1: length( experiments)
+for fi = 1: size( forcing_versions,1)
+  for ci = 1: length( core_experiments)
 
-    filename_config_template = ['../../tier1/configs/config_' experiments{ xi} '.cfg'];
+    filename_config_template = ['../../tier1/configs/config_' core_experiments{ ci} '.cfg'];
     c = read_config_template( filename_config_template);
 
     ppi = ppi + 1;
   
-    opts.experiment        = experiments{ xi};
-    opts.model_variation   = model_variations{ 1};
-    opts.forcing_variation = forcing_variations{ fi};
-    opts.ppi               = ppi;
+    opts.core_experiment = core_experiments{ ci};
+    opts.model_version   = model_versions{ 1,1};
+    opts.forcing_version = forcing_versions{ fi,1};
+    opts.ppi             = ppi;
 
-    disp(['Simulation P' ppi2str( opts.ppi) ' - ' opts.forcing_variation ' - ' opts.model_variation])
+    add_simulation_to_list( fid, opts)
   
     cc = setup_config( c, opts);
   
@@ -48,20 +63,20 @@ for fi = 1: length( forcing_variations)
   end
 end
 
-for mi = 1: length( model_variations)
-  for xi = 1: length( experiments)
+for mi = 1: size( model_versions,1)
+  for ci = 1: length( core_experiments)
 
-    filename_config_template = ['../../tier1/configs/config_' experiments{ xi} '.cfg'];
+    filename_config_template = ['../../tier1/configs/config_' core_experiments{ ci} '.cfg'];
     c = read_config_template( filename_config_template);
 
     ppi = ppi + 1;
   
-    opts.experiment        = experiments{ xi};
-    opts.model_variation   = model_variations{ mi};
-    opts.forcing_variation = forcing_variations{ 1};
+    opts.core_experiment   = core_experiments{ ci};
+    opts.model_version   = model_versions{ mi,1};
+    opts.forcing_version = forcing_versions{ 1,1};
     opts.ppi               = ppi;
 
-    disp(['Simulation P' ppi2str( opts.ppi) ' - ' opts.forcing_variation ' - ' opts.model_variation])
+    add_simulation_to_list( fid, opts)
   
     cc = setup_config( c, opts);
   
@@ -70,6 +85,58 @@ for mi = 1: length( model_variations)
     write_config_to_file( cc, config_filename)
   
   end
+
+end
+
+fclose( fid);
+
+function delete_existing_config_files()
+
+henk = dir();
+
+for i = 1: length( henk)
+  if endsWith( henk(i).name,'.cfg')
+    delete( henk(i).name)
+  end
+end
+
+end
+
+function list_forcing_and_model_versions( fid, forcing_versions, model_versions)
+
+fprintf( fid,'%s\n', 'List of all the ISMIP7 PPE experiments');
+fprintf( fid,'%s\n', 'that were done by the IMAU/KNMI group with UFEMISM');
+fprintf( fid,'%s\n', '');
+fprintf( fid,'%s\n', '=== Forcing versions ===');
+fprintf( fid,'%s\n', '========================');
+fprintf( fid,'%s\n', '');
+
+for fi = 1: size( forcing_versions,1)
+  fprintf( fid,'%s\n', [forcing_versions{ fi,1} ': ' forcing_versions{ fi,2}]);
+end
+
+fprintf( fid,'%s\n', '');
+fprintf( fid,'%s\n', '=== ISM versions ===');
+fprintf( fid,'%s\n', '====================');
+fprintf( fid,'%s\n', '');
+
+for mi = 1: size( model_versions,1)
+  fprintf( fid,'%s\n', [model_versions{ mi,1} ': ' model_versions{ mi,2}]);
+end
+
+fprintf( fid,'%s\n', '');
+fprintf( fid,'%s\n', '=== PPE simulations ===');
+fprintf( fid,'%s\n', '=======================');
+fprintf( fid,'%s\n', '');
+
+end
+
+function add_simulation_to_list( fid, opts)
+
+  fprintf( fid, '%s\n', ['P' ppi2str( opts.ppi) ': ' ...
+    'based on Core experiment ' opts.core_experiment ...
+    ' with forcing version ' opts.forcing_version ...
+    ' and ISM version ' opts.model_version]);
 
 end
 
@@ -136,6 +203,9 @@ elseif startsWith( single_line, 'ismip_forcing_member_id_config')
 elseif startsWith( single_line, 'ismip_counter_config')
   single_line = ismip_counter_config( opts);
 
+elseif startsWith( single_line, 'choice_GIA_model_config')
+  single_line = choice_GIA_model_config( opts);
+
 elseif startsWith( single_line, 'SMB_ISMIP7_apply_SMB_lapse_rate_config')
   single_line = SMB_ISMIP7_apply_SMB_lapse_rate_config( opts);
 
@@ -175,13 +245,13 @@ end
 
 function single_line = ismip_member_id_config( opts)
 
-single_line = ['ismip_member_id_config = ''' opts.model_variation ''''];
+single_line = ['ismip_member_id_config = ''' opts.model_version ''''];
 
 end
 
 function single_line = ismip_forcing_member_id_config( opts)
 
-single_line = ['ismip_forcing_member_id_config = ''' opts.forcing_variation ''''];
+single_line = ['ismip_forcing_member_id_config = ''' opts.forcing_version ''''];
 
 end
 
@@ -192,20 +262,31 @@ single_line = ['ismip_counter_config = ''P' ppi2str( opts.ppi) ''''];
 end
 
 function single_line = SMB_ISMIP7_apply_SMB_lapse_rate_config( opts)
-  switch opts.forcing_variation
+  switch opts.forcing_version
     case 'f001'
       single_line = 'SMB_ISMIP7_apply_SMB_lapse_rate_config = .true.';
     case 'f002'
       single_line = 'SMB_ISMIP7_apply_SMB_lapse_rate_config = .false.';
     otherwise
-      error(['invalid forcing_variation ' opts.forcing_variation])
+      error(['invalid forcing_version ' opts.forcing_version])
   end
+end
+
+function single_line = choice_GIA_model_config( opts)
+
+switch opts.model_version
+  case 'm002'
+    single_line = "choice_GIA_model_config = 'none'";
+  otherwise
+    single_line = "choice_GIA_model_config = 'ELRA'";
+end
+
 end
 
 function single_line = choice_GIA_ELRA_relaxation_time_config( opts)
 
-switch opts.model_variation
-  case {'m002','m003'}
+switch opts.model_version
+  case {'m003','m004'}
     single_line = "choice_GIA_ELRA_relaxation_time_config = 'uniform'";
   otherwise
     single_line = "choice_GIA_ELRA_relaxation_time_config = 'read_from_file'";
@@ -215,7 +296,7 @@ end
 
 function single_line = ELRA_bedrock_relaxation_time_config( opts)
 
-switch opts.model_variation
+switch opts.model_version
   case 'm002'
     single_line = 'ELRA_bedrock_relaxation_time_config = 3000.0';
   case 'm003'
@@ -228,10 +309,10 @@ end
 
 function single_line = laddie_drag_coefficient_top_config( opts)
 
-switch opts.model_variation
-  case 'm004'
-    single_line = 'laddie_drag_coefficient_top_config = 0.0014';
+switch opts.model_version
   case 'm005'
+    single_line = 'laddie_drag_coefficient_top_config = 0.0014';
+  case 'm006'
     single_line = 'laddie_drag_coefficient_top_config = 0.0005';
   otherwise
     single_line = 'laddie_drag_coefficient_top_config = 0.0009';
@@ -241,8 +322,8 @@ end
 
 function single_line = do_apply_ISMIP7_fracture_mask_config( opts)
 
-switch opts.model_variation
-  case 'm006'
+switch opts.model_version
+  case 'm007'
     single_line = 'do_apply_ISMIP7_fracture_mask_config = .false.';
   otherwise
     single_line = 'do_apply_ISMIP7_fracture_mask_config = .true.';
@@ -252,8 +333,8 @@ end
 
 function single_line = ISMIP7_fracture_only_from_front_config( opts)
 
-switch opts.model_variation
-  case 'm007'
+switch opts.model_version
+  case 'm008'
     single_line = 'ISMIP7_fracture_only_from_front_config = .false.';
   otherwise
     single_line = 'ISMIP7_fracture_only_from_front_config = .true.';
@@ -263,8 +344,8 @@ end
 
 function single_line = choice_thermo_model_config( opts)
 
-switch opts.model_variation
-  case 'm008'
+switch opts.model_version
+  case 'm009'
     single_line = "choice_thermo_model_config = 'none'";
   otherwise
     single_line = "choice_thermo_model_config = '3D_heat_equation'";
@@ -274,10 +355,10 @@ end
 
 function single_line = calving_threshold_thickness_shelf_config( opts)
 
-switch opts.model_variation
-  case 'm009'
-    single_line = 'calving_threshold_thickness_shelf_config = 100.0';
+switch opts.model_version
   case 'm010'
+    single_line = 'calving_threshold_thickness_shelf_config = 100.0';
+  case 'm011'
     single_line = 'calving_threshold_thickness_shelf_config = 200.0';
   otherwise
     single_line = 'calving_threshold_thickness_shelf_config = 1.0';
