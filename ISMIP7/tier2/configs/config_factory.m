@@ -36,6 +36,8 @@ for fi = 1: length( forcing_variations)
     opts.model_variation   = model_variations{ 1};
     opts.forcing_variation = forcing_variations{ fi};
     opts.ppi               = ppi;
+
+    disp(['Simulation P' ppi2str( opts.ppi) ' - ' opts.forcing_variation ' - ' opts.model_variation])
   
     cc = setup_config( c, opts);
   
@@ -58,6 +60,8 @@ for mi = 1: length( model_variations)
     opts.model_variation   = model_variations{ mi};
     opts.forcing_variation = forcing_variations{ 1};
     opts.ppi               = ppi;
+
+    disp(['Simulation P' ppi2str( opts.ppi) ' - ' opts.forcing_variation ' - ' opts.model_variation])
   
     cc = setup_config( c, opts);
   
