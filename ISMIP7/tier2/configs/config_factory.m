@@ -38,6 +38,9 @@ fid = fopen( filename_PPE_table,'w');
 list_forcing_and_model_versions( fid, forcing_versions, model_versions);
 
 ppi = 0;
+opts_historical_CESM = [];
+opts_historical_MRI  = [];
+opts_historical      = [];
 
 for fi = 1: size( forcing_versions,1)
   for ci = 1: length( core_experiments)
@@ -51,6 +54,18 @@ for fi = 1: size( forcing_versions,1)
     opts.model_version   = model_versions{ 1,1};
     opts.forcing_version = forcing_versions{ fi,1};
     opts.ppi             = ppi;
+
+    if strcmpi( opts.core_experiment,'C001')
+      opts_historical_CESM = opts;
+    elseif strcmpi( opts.core_experiment,'C002')
+      opts_historical_MRI = opts;
+    elseif strcmpi( opts.core_experiment,'C007')
+      opts_historical = opts_historical_CESM;
+    elseif strcmpi( opts.core_experiment,'C008')
+      opts_historical = opts_historical_MRI;
+    end
+
+    opts.opts_historical = opts_historical;
 
     add_simulation_to_list( fid, opts)
   
@@ -203,6 +218,21 @@ elseif startsWith( single_line, 'ismip_forcing_member_id_config')
 elseif startsWith( single_line, 'ismip_counter_config')
   single_line = ismip_counter_config( opts);
 
+elseif startsWith( single_line, 'filename_refgeo_init_ANT_config')
+  single_line = filename_refgeo_init_ANT_config( opts);
+
+elseif startsWith( single_line, 'filename_initial_velocity_ANT_config')
+  single_line = filename_initial_velocity_ANT_config( opts);
+
+elseif startsWith( single_line, 'filename_pc_initialise_ANT_config')
+  single_line = filename_pc_initialise_ANT_config( opts);
+
+elseif startsWith( single_line, 'filename_laddie_restart_config')
+  single_line = filename_laddie_restart_config( opts);
+
+elseif startsWith( single_line, 'filename_initial_ice_temperature_ANT_config')
+  single_line = filename_initial_ice_temperature_ANT_config( opts);
+
 elseif startsWith( single_line, 'choice_GIA_model_config')
   single_line = choice_GIA_model_config( opts);
 
@@ -258,6 +288,71 @@ end
 function single_line = ismip_counter_config( opts)
 
 single_line = ['ismip_counter_config = ''P' ppi2str( opts.ppi) ''''];
+
+end
+
+function single_line = filename_refgeo_init_ANT_config( opts)
+
+switch opts.core_experiment
+  case {'C007', 'C008'}
+    single_line = ['filename_refgeo_init_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/tier1/results_P' ppi2str( opts.opts_historical.ppi) '/main_output_ANT_00001.nc'''];
+  otherwise
+    single_line = ['filename_refgeo_init_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/initial_states/s18p1/main_output_ANT_00001.nc'''];
+end
+
+end
+
+function single_line = filename_initial_velocity_ANT_config( opts)
+
+switch opts.core_experiment
+  case {'C007', 'C008'}
+    single_line = ['filename_initial_velocity_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/tier1/results_P' ppi2str( opts.opts_historical.ppi) '/restart_ice_velocity_DIVA_00001.nc'''];
+  otherwise
+    single_line = ['filename_initial_velocity_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/initial_states/s18p1/restart_ice_velocity_DIVA_00001.nc'''];
+end
+
+end
+
+function single_line = filename_pc_initialise_ANT_config( opts)
+
+switch opts.core_experiment
+  case {'C007', 'C008'}
+    single_line = ['filename_pc_initialise_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/tier1/results_P' ppi2str( opts.opts_historical.ppi) '/restart_pc_scheme_00001.nc'''];
+  otherwise
+    single_line = ['filename_pc_initialise_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/initial_states/s18p1/restart_pc_scheme_00001.nc'''];
+end
+
+end
+
+function single_line = filename_laddie_restart_config( opts)
+
+switch opts.core_experiment
+  case {'C007', 'C008'}
+    single_line = ['filename_laddie_restart_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/tier1/results_P' ppi2str( opts.opts_historical.ppi) '/restart_BMB_ANT_00001.nc'''];
+  otherwise
+    single_line = ['filename_laddie_restart_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/initial_states/s18p1/restart_BMB_ANT_00001.nc'''];
+end
+
+end
+
+function single_line = filename_initial_ice_temperature_ANT_config( opts)
+
+switch opts.core_experiment
+  case {'C007', 'C008'}
+    single_line = ['filename_initial_ice_temperature_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/tier1/results_P' ppi2str( opts.opts_historical.ppi) '/restart_thermodynamics_00001.nc'''];
+  otherwise
+    single_line = ['filename_initial_ice_temperature_ANT_config = ''/projects/einf1499/tijn/ISMIP7/' ...
+      'results/initial_states/s18p1/restart_thermodynamics_00001.nc'''];
+end
 
 end
 
