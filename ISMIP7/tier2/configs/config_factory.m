@@ -8,9 +8,7 @@ filename_PPE_table = 'IMAUKNMI_UFEMISM_PPE_table.txt';
 
 core_experiments = {
   'C001'
-  'C002'
-  'C007'
-  'C008'
+  'C003'
   };
 model_versions = {
   'm001','Default';
@@ -59,9 +57,15 @@ for fi = 1: size( forcing_versions,1)
       opts_historical_CESM = opts;
     elseif strcmpi( opts.core_experiment,'C002')
       opts_historical_MRI = opts;
-    elseif strcmpi( opts.core_experiment,'C007')
+    elseif strcmpi( opts.core_experiment,'C003') || ...
+           strcmpi( opts.core_experiment,'C005') || ...
+           strcmpi( opts.core_experiment,'C007') || ...
+           strcmpi( opts.core_experiment,'C009')
       opts_historical = opts_historical_CESM;
-    elseif strcmpi( opts.core_experiment,'C008')
+    elseif strcmpi( opts.core_experiment,'C004') || ...
+           strcmpi( opts.core_experiment,'C006') || ...
+           strcmpi( opts.core_experiment,'C008') || ...
+           strcmpi( opts.core_experiment,'C010')
       opts_historical = opts_historical_MRI;
     end
 
