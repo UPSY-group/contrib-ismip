@@ -7,8 +7,11 @@ delete_existing_config_files()
 filename_PPE_table = 'IMAUKNMI_UFEMISM_PPE_table.txt';
 
 core_experiments = {
-  'C001'
-  'C003'
+  'C001'   % Historical, CESM
+  'C002'   % Historical, MRI
+  'C003'   % SSP3-7.0, CESM
+  'C007'   % SSP5-8.5, CESM
+  'C008'   % SSP5-8.5, MRI
   };
 model_versions = {
   'm001','Default';
@@ -20,8 +23,9 @@ model_versions = {
   'm007','Fracture: not applied';
   'm008','Fracture: apply to all floating ice';
   'm009','No thermodynamics (constant ice temperature)';
-  'm010','Calving: threshold thickness = 100 m';
-  'm011','Calving: threshold thickness = 200 m';
+  'm010','Calving: threshold thickness = 50 m';
+  'm011','Calving: threshold thickness = 100 m';
+  'm012','Calving: threshold thickness = 200 m';
   };
 forcing_versions = {
   'f001','Default';
@@ -456,8 +460,10 @@ function single_line = calving_threshold_thickness_shelf_config( opts)
 
 switch opts.model_version
   case 'm010'
-    single_line = 'calving_threshold_thickness_shelf_config = 100.0';
+    single_line = 'calving_threshold_thickness_shelf_config = 50.0';
   case 'm011'
+    single_line = 'calving_threshold_thickness_shelf_config = 100.0';
+  case 'm012'
     single_line = 'calving_threshold_thickness_shelf_config = 200.0';
   otherwise
     single_line = 'calving_threshold_thickness_shelf_config = 1.0';
