@@ -99,6 +99,24 @@ for mi = 1: size( model_versions,1)
     opts.forcing_version = forcing_versions{ 1,1};
     opts.ppi               = ppi;
 
+    if strcmpi( opts.core_experiment,'C001')
+      opts_historical_CESM = opts;
+    elseif strcmpi( opts.core_experiment,'C002')
+      opts_historical_MRI = opts;
+    elseif strcmpi( opts.core_experiment,'C003') || ...
+           strcmpi( opts.core_experiment,'C005') || ...
+           strcmpi( opts.core_experiment,'C007') || ...
+           strcmpi( opts.core_experiment,'C009')
+      opts_historical = opts_historical_CESM;
+    elseif strcmpi( opts.core_experiment,'C004') || ...
+           strcmpi( opts.core_experiment,'C006') || ...
+           strcmpi( opts.core_experiment,'C008') || ...
+           strcmpi( opts.core_experiment,'C010')
+      opts_historical = opts_historical_MRI;
+    end
+
+    opts.opts_historical = opts_historical;
+
     add_simulation_to_list( fid, opts)
   
     cc = setup_config( c, opts);
@@ -264,6 +282,9 @@ elseif startsWith( single_line, 'ISMIP7_fracture_only_from_front_config')
 
 elseif startsWith( single_line, 'choice_thermo_model_config')
   single_line = choice_thermo_model_config( opts);
+
+% elseif startsWith( single_line, 'choice_calving_law_config')
+  % single_line = choice_calving_law_config( opts);
 
 elseif startsWith( single_line, 'calving_threshold_thickness_shelf_config')
   single_line = calving_threshold_thickness_shelf_config( opts);
@@ -452,6 +473,17 @@ switch opts.model_version
     single_line = "choice_thermo_model_config = 'none'";
   otherwise
     single_line = "choice_thermo_model_config = '3D_heat_equation'";
+end
+
+end
+
+function single_line = choice_calving_law_config( opts)
+
+switch opts.model_version
+  case {'m010','m011','m012'}
+    single_line = 'choice_calving_law_config = ''threshold_thickness_front_iterative''';
+  otherwise
+    single_line = 'choice_calving_law_config = ''threshold_thickness''';
 end
 
 end
