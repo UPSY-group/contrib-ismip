@@ -283,8 +283,8 @@ elseif startsWith( single_line, 'ISMIP7_fracture_only_from_front_config')
 elseif startsWith( single_line, 'choice_thermo_model_config')
   single_line = choice_thermo_model_config( opts);
 
-% elseif startsWith( single_line, 'choice_calving_law_config')
-  % single_line = choice_calving_law_config( opts);
+elseif startsWith( single_line, 'choice_calving_law_config')
+  single_line = choice_calving_law_config( opts);
 
 elseif startsWith( single_line, 'calving_threshold_thickness_shelf_config')
   single_line = calving_threshold_thickness_shelf_config( opts);
