@@ -108,12 +108,17 @@ set( H.Legend,'units','pixels','position',[29.5000   15.2500  219.5000  327.5000
 
 function IMBIE = read_IMBIE()
 
-filename_IMBIE = '/Users/Beren017/Documents/imbie_antarctica_2021_mm.csv';
+filename_IMBIE = '/Users/Beren017/Documents/imbie3_antarctica_mm_partitioned.csv';
 
 fid = fopen( filename_IMBIE);
-temp = textscan( fid,'%f %f %f %f %f','headerlines',1,'delimiter',',');
+temp = textscan( fid,'%s %f %f %f %f %f %f %f %f %f %f %f %f','headerlines',27,'delimiter',',');
 
-time = temp{1};
+time = zeros( size( temp{1}));
+for ti = 1: length( temp{1})
+  time( ti) = str2double(temp{1}{ti}(1:4)) + ...
+    str2double(temp{1}{ti}(6:7)) / 12 + ...
+    str2double(temp{1}{ti}(9:10)) / 365;
+end
 SL   = temp{4} / 1e3; % Conversion from mmsle to msle
 dSL  = temp{5} / 1e3; % Conversion from mmsle to msle
 
@@ -121,15 +126,15 @@ SL_min = SL - dSL;
 SL_max = SL + dSL;
 
 % Define SL(t=2015) as zero
-ti = find( time==2015);
+ti = find( abs( time-2015) == min( abs( time-2015)));
 SL = SL - SL( ti);
 SL_min = SL_min - SL_min( ti);
 SL_max = SL_max - SL_max( ti);
 
 IMBIE.time   = time;
-IMBIE.SL     = SL;
-IMBIE.SL_min = SL_min;
-IMBIE.SL_max = SL_max;
+IMBIE.SL     = -SL;
+IMBIE.SL_min = -SL_min;
+IMBIE.SL_max = -SL_max;
 
 end
 
