@@ -26,7 +26,7 @@ for PART in "${PARTS[@]}"; do
   sed -i 's/lapse_rate_temp_ANT_config[[:space:]]*=[[:space:]]*7.5E-3/lapse_rate_temp_ANT_config = 10.0E-3/g' "$DEST"
   sed -i "s/E1p0/E3p0/g" "$DEST"
   sed -i "s/E1p1/E3p1/g" "$DEST"
-  sed -i "s/E1p3/E2p3/g" "$DEST"
+  sed -i "s/E1p3/E3p3/g" "$DEST"
 
   # Experiment 4
   DEST="Tier2/E4${PART}.cfg"
