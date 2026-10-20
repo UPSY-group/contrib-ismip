@@ -13,7 +13,7 @@ margins_ver = [50,100];
 H = setup_multipanel_figure( wa, ha, margins_hor, margins_ver);
 
 set( H.Ax{1,1},'xlim',[2000,2300],'ylim',[-1,5],'fontsize',25);
-set( H.Ax{1,2},'xlim',[-1,5],'ylim',[-1,5],'fontsize',25,...
+set( H.Ax{1,2},'xlim',[-1,6],'ylim',[-1,5],'fontsize',25,...
   'xtick',[]);
 H.Ax{1,2}.XAxis.Visible = 'off';
 H.Ax{1,2}.YAxis.Visible = 'off';
@@ -30,28 +30,39 @@ H.Axa.YAxis.Visible = 'off';
 legend_entries = {};
 
 % Counter for range bars
-rangebari = 0;
-dd        = 0.1;
+rangebari  = 0;
+rangebari2 = 0;
+dd         = 0.1;
 
 %% Default
+
 legend_entries{ end+1} = 'Default';
 default.color = 'black';
 line('parent',H.Axa,'xdata',[],'ydata',[],...
   'linewidth',linewidth,'color',code2colour( default.color),'linestyle','-');
 
-[default.time, default.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P001', 'P002');
+% CESM2-WACCM
+[default.time, default.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P001', 'P004');
 
 line('parent',H.Ax{1,1},'xdata',default.time,'ydata',default.SLC,...
   'linewidth',linewidth,'color',code2colour( default.color),'linestyle','-');
 
-%% Fracture
-legend_entries{ end+1} = 'Fracture';
+% MRI-ESM2-0
+[default2.time, default2.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P002', 'P005');
+
+line('parent',H.Ax{1,1},'xdata',default2.time,'ydata',default2.SLC,...
+  'linewidth',linewidth,'color',code2colour( default.color),'linestyle',':');
+
+%% Hydrofracturing
+
+legend_entries{ end+1} = 'Hydrofracturing';
 frac.color = 'red';
 line('parent',H.Axa,'xdata',[],'ydata',[],...
   'linewidth',linewidth,'color',code2colour( frac.color),'linestyle','-');
 
-[frac_lo.time, frac_lo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P015', 'P016');
-[frac_hi.time, frac_hi.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P017', 'P018');
+% CESM2-WACCM
+[frac_lo.time, frac_lo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P041', 'P044');
+[frac_hi.time, frac_hi.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P046', 'P049');
 
 line('parent',H.Ax{1,1},'xdata',frac_lo.time,'ydata',frac_lo.SLC,...
   'linewidth',linewidth,'color',code2colour( frac.color),'linestyle','-');
@@ -69,14 +80,36 @@ yhi = frac.SLC_max;
 patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
   'facecolor',code2colour( frac.color),'edgecolor','none');
 
+% MRI-ESM2-0
+[frac_lo.time, frac_lo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P042', 'P045');
+[frac_hi.time, frac_hi.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P047', 'P050');
+
+line('parent',H.Ax{1,1},'xdata',frac_lo.time,'ydata',frac_lo.SLC,...
+  'linewidth',linewidth,'color',code2colour( frac.color),'linestyle',':');
+line('parent',H.Ax{1,1},'xdata',frac_hi.time,'ydata',frac_hi.SLC,...
+  'linewidth',linewidth,'color',code2colour( frac.color),'linestyle',':');
+
+% Plot range in 2300
+frac.SLC_max = max( frac_lo.SLC(end), frac_hi.SLC(end));
+frac.SLC_min = min( frac_lo.SLC(end), frac_hi.SLC(end));
+rangebari2 = rangebari2+1;
+xlo = rangebari2 - 1 + dd;
+xhi = rangebari2     - dd;
+ylo = frac.SLC_min;
+yhi = frac.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( frac.color),'edgecolor','none');
+
 %% LADDIE
+
 legend_entries{ end+1} = 'LADDIE';
 LADDIE.color = 'blue';
 line('parent',H.Axa,'xdata',[],'ydata',[],...
   'linewidth',linewidth,'color',code2colour( LADDIE.color),'linestyle','-');
 
-[LADDIE_hi.time, LADDIE_hi.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P011', 'P012');
-[LADDIE_lo.time, LADDIE_lo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P013', 'P014');
+% CESM2-WACCM
+[LADDIE_hi.time, LADDIE_hi.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P031', 'P034');
+[LADDIE_lo.time, LADDIE_lo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P036', 'P039');
 
 line('parent',H.Ax{1,1},'xdata',LADDIE_hi.time,'ydata',LADDIE_hi.SLC,...
   'linewidth',linewidth,'color',code2colour( LADDIE.color),'linestyle','-');
@@ -94,13 +127,35 @@ yhi = LADDIE.SLC_max;
 patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
   'facecolor',code2colour( LADDIE.color),'edgecolor','none');
 
+% MRI-ESM2-0
+[LADDIE_hi.time, LADDIE_hi.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P032', 'P035');
+[LADDIE_lo.time, LADDIE_lo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P037', 'P040');
+
+line('parent',H.Ax{1,1},'xdata',LADDIE_hi.time,'ydata',LADDIE_hi.SLC,...
+  'linewidth',linewidth,'color',code2colour( LADDIE.color),'linestyle',':');
+line('parent',H.Ax{1,1},'xdata',LADDIE_lo.time,'ydata',LADDIE_lo.SLC,...
+  'linewidth',linewidth,'color',code2colour( LADDIE.color),'linestyle',':');
+
+% Plot range in 2300
+LADDIE.SLC_max = max( LADDIE_lo.SLC(end), LADDIE_hi.SLC(end));
+LADDIE.SLC_min = min( LADDIE_lo.SLC(end), LADDIE_hi.SLC(end));
+rangebari2 = rangebari2+1;
+xlo = rangebari2 - 1 + dd;
+xhi = rangebari2     - dd;
+ylo = LADDIE.SLC_min;
+yhi = LADDIE.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( LADDIE.color),'edgecolor','none');
+
 %% SMB lapse rate
+
 legend_entries{ end+1} = 'dSMB/dz';
 dSMBdz.color = 'green';
 line('parent',H.Axa,'xdata',[],'ydata',[],...
   'linewidth',linewidth,'color',code2colour( dSMBdz.color),'linestyle','-');
 
-[dSMBdz.time, dSMBdz.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P003', 'P004');
+% CESM2-WACCM
+[dSMBdz.time, dSMBdz.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P006', 'P009');
 
 line('parent',H.Ax{1,1},'xdata',dSMBdz.time,'ydata',dSMBdz.SLC,...
   'linewidth',linewidth,'color',code2colour( dSMBdz.color),'linestyle','-');
@@ -116,13 +171,32 @@ yhi = dSMBdz.SLC_max;
 patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
   'facecolor',code2colour( dSMBdz.color),'edgecolor','none');
 
+% MRI-ESM2-0
+[dSMBdz.time, dSMBdz.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P007', 'P010');
+
+line('parent',H.Ax{1,1},'xdata',dSMBdz.time,'ydata',dSMBdz.SLC,...
+  'linewidth',linewidth,'color',code2colour( dSMBdz.color),'linestyle',':');
+
+% Plot range in 2300
+dSMBdz.SLC_max = max( default2.SLC(end), dSMBdz.SLC(end));
+dSMBdz.SLC_min = min( default2.SLC(end), dSMBdz.SLC(end));
+rangebari2 = rangebari2+1;
+xlo = rangebari2 - 1 + dd;
+xhi = rangebari2     - dd;
+ylo = dSMBdz.SLC_min;
+yhi = dSMBdz.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( dSMBdz.color),'edgecolor','none');
+
 %% Thermodynamics
+
 legend_entries{ end+1} = 'Thermodynamics';
 thermo.color = 'orange';
 line('parent',H.Axa,'xdata',[],'ydata',[],...
   'linewidth',linewidth,'color',code2colour( thermo.color),'linestyle','-');
 
-[thermo.time, thermo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P019', 'P020');
+% CESM2-WACCM
+[thermo.time, thermo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P051', 'P054');
 
 line('parent',H.Ax{1,1},'xdata',thermo.time,'ydata',thermo.SLC,...
   'linewidth',linewidth,'color',code2colour( thermo.color),'linestyle','-');
@@ -138,14 +212,33 @@ yhi = thermo.SLC_max;
 patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
   'facecolor',code2colour( thermo.color),'edgecolor','none');
 
+% MRI-ESM2-0
+[thermo.time, thermo.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P052', 'P055');
+
+line('parent',H.Ax{1,1},'xdata',thermo.time,'ydata',thermo.SLC,...
+  'linewidth',linewidth,'color',code2colour( thermo.color),'linestyle','-');
+
+% Plot range in 2300
+thermo.SLC_max = max( default2.SLC(end), thermo.SLC(end));
+thermo.SLC_min = min( default2.SLC(end), thermo.SLC(end));
+rangebari2 = rangebari2+1;
+xlo = rangebari2 - 1 + dd;
+xhi = rangebari2     - dd;
+ylo = thermo.SLC_min;
+yhi = thermo.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( thermo.color),'edgecolor','none');
+
 %% GIA
+
 legend_entries{ end+1} = 'GIA';
 GIA.color = 'brown';
 line('parent',H.Axa,'xdata',[],'ydata',[],...
   'linewidth',linewidth,'color',code2colour( GIA.color),'linestyle','-');
 
-[GIA_slow.time, GIA_slow.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P007', 'P008');
-[GIA_fast.time, GIA_fast.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P009', 'P010');
+% CESM2-WACCM
+[GIA_slow.time, GIA_slow.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P016', 'P019');
+[GIA_fast.time, GIA_fast.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P026', 'P029');
 
 line('parent',H.Ax{1,1},'xdata',GIA_slow.time,'ydata',GIA_slow.SLC,...
   'linewidth',linewidth,'color',code2colour( GIA.color),'linestyle','-');
@@ -163,12 +256,75 @@ yhi = GIA.SLC_max;
 patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
   'facecolor',code2colour( GIA.color),'edgecolor','none');
 
+% MRI-ESM2-0
+[GIA_slow.time, GIA_slow.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P017', 'P020');
+[GIA_fast.time, GIA_fast.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P027', 'P030');
+
+line('parent',H.Ax{1,1},'xdata',GIA_slow.time,'ydata',GIA_slow.SLC,...
+  'linewidth',linewidth,'color',code2colour( GIA.color),'linestyle',':');
+line('parent',H.Ax{1,1},'xdata',GIA_fast.time,'ydata',GIA_fast.SLC,...
+  'linewidth',linewidth,'color',code2colour( GIA.color),'linestyle',':');
+
+% Plot range in 2300
+GIA.SLC_max = max( GIA_slow.SLC(end), GIA_fast.SLC(end));
+GIA.SLC_min = min( GIA_slow.SLC(end), GIA_fast.SLC(end));
+rangebari2 = rangebari2+1;
+xlo = rangebari2 - 1 + dd;
+xhi = rangebari2     - dd;
+ylo = GIA.SLC_min;
+yhi = GIA.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( GIA.color),'edgecolor','none');
+
+%% Calving
+
+legend_entries{ end+1} = 'Calving';
+calving.color = 'yellow';
+line('parent',H.Axa,'xdata',[],'ydata',[],...
+  'linewidth',linewidth,'color',code2colour( calving.color),'linestyle','-');
+
+% CESM2-WACCM
+[calving.time, calving.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P061', 'P064');
+
+line('parent',H.Ax{1,1},'xdata',calving.time,'ydata',calving.SLC,...
+  'linewidth',linewidth,'color',code2colour( calving.color),'linestyle','-');
+
+% Plot range in 2300
+calving.SLC_max = max( default.SLC(end), calving.SLC(end));
+calving.SLC_min = min( default.SLC(end), calving.SLC(end));
+rangebari = rangebari+1;
+xlo = rangebari - 1 + dd;
+xhi = rangebari     - dd;
+ylo = calving.SLC_min;
+yhi = calving.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( calving.color),'edgecolor','none');
+
+% MRI-ESM2-0
+[calving.time, calving.SLC] = read_SLC_hist_and_proj( foldername_tier2, 'P062', 'P065');
+
+line('parent',H.Ax{1,1},'xdata',calving.time,'ydata',calving.SLC,...
+  'linewidth',linewidth,'color',code2colour( calving.color),'linestyle',':');
+
+% Plot range in 2300
+calving.SLC_max = max( default2.SLC(end), calving.SLC(end));
+calving.SLC_min = min( default2.SLC(end), calving.SLC(end));
+rangebari2 = rangebari2+1;
+xlo = rangebari2 - 1 + dd;
+xhi = rangebari2     - dd;
+ylo = calving.SLC_min;
+yhi = calving.SLC_max;
+patch('parent',H.Ax{1,2},'xdata',[xlo,xhi,xhi,xlo],'ydata',[ylo,ylo,yhi,yhi],...
+  'facecolor',code2colour( calving.color),'edgecolor','none');
+
 %% Legend
 legend( H.Axa, legend_entries, 'location','northwest','fontsize',25);
 
 %% Default value on top of range bars
 xlim = get( H.Ax{1,2},'xlim');
 line('parent',H.Ax{1,2},'xdata',xlim,'ydata',[0,0]+default.SLC(end),...
+  'color','k','linewidth',linewidth-1,'linestyle',':')
+line('parent',H.Ax{1,2},'xdata',xlim,'ydata',[0,0]+default2.SLC(end),...
   'color','k','linewidth',linewidth-1,'linestyle',':')
 
 function colour = code2colour( col_code)
