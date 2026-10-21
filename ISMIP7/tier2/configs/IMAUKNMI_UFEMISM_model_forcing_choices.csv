@@ -1,14 +1,14 @@
 List of all the ISMIP7 PPE experiments
 that were done by the IMAU/KNMI group with UFEMISM
 
-=== Forcing versions ===
-========================
+=== Forcing choices ===
+=======================
 
 f001: Default
 f002: dSMB/dz = 0
 
-=== ISM versions ===
-====================
+=== Model choices ===
+=====================
 
 m001: Default
 m002: GIA: no uplift

@@ -4,7 +4,7 @@ close all
 
 delete_existing_config_files()
 
-filename_PPE_table = 'IMAUKNMI_UFEMISM_PPE_table.txt';
+filename_PPE_table = 'IMAUKNMI_UFEMISM_model_forcing_choices.csv';
 
 core_experiments = {
   'C001'   % Historical, CESM
@@ -148,8 +148,8 @@ function list_forcing_and_model_versions( fid, forcing_versions, model_versions)
 fprintf( fid,'%s\n', 'List of all the ISMIP7 PPE experiments');
 fprintf( fid,'%s\n', 'that were done by the IMAU/KNMI group with UFEMISM');
 fprintf( fid,'%s\n', '');
-fprintf( fid,'%s\n', '=== Forcing versions ===');
-fprintf( fid,'%s\n', '========================');
+fprintf( fid,'%s\n', '=== Forcing choices ===');
+fprintf( fid,'%s\n', '=======================');
 fprintf( fid,'%s\n', '');
 
 for fi = 1: size( forcing_versions,1)
@@ -157,8 +157,8 @@ for fi = 1: size( forcing_versions,1)
 end
 
 fprintf( fid,'%s\n', '');
-fprintf( fid,'%s\n', '=== ISM versions ===');
-fprintf( fid,'%s\n', '====================');
+fprintf( fid,'%s\n', '=== Model choices ===');
+fprintf( fid,'%s\n', '=====================');
 fprintf( fid,'%s\n', '');
 
 for mi = 1: size( model_versions,1)
